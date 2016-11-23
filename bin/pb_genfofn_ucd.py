@@ -73,13 +73,13 @@ for line in incell:
     line = remove_comment(line)
     line = line.strip().split('\t')
     if len(line) != 2:
-        next()
+        continue
     run = line[0]
     cells = line[1].split(",")
     for cell in cells:
         cell = cell.strip()
         if cell[0] == '!':  # allow for cell removal if cell ID is preceeded by '!'
-            next()
+            continue
         skey = base + run + '/' + cell + "_1/Analysis_Results/*." + ftype
         files = sorted(glob.glob(skey))
         for f in files:
