@@ -61,7 +61,7 @@ output = options.output
 base = options.base
 ftype = options.filetype
 
-if output is 'stdout':
+if output == "stdout":
     out = sys.stdout
 else:
     out = open(output, 'w')
