@@ -165,7 +165,7 @@ for line in infofn:
                              ("read_lengths", rlen),
                              ("read_qualiies", rq)])
 
-    stat_data.append(file_data)
+    stats_data.append(file_data)
 
 cell_keys = ["run_id","cell_position","cell_barcode","filename","read_count","zmw","read_starts","read_ends","read_lengths","read_qualities"]
 
