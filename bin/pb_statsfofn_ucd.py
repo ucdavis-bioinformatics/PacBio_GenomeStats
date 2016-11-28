@@ -95,7 +95,7 @@ for line in infofn:
 
     # process a fasta file
     fasta = open(line, 'r')
-
+    print("Processing file: %s", line)
     # parse out run and cell position and cell barcode from file name
     pf = line.split("/Analysis_Results/")
     if len(pf) == 2:
