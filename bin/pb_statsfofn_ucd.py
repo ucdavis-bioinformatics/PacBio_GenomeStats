@@ -124,7 +124,7 @@ for line in infofn:
                 cell_position = None
                 cell_barcode = m.group(1)
             else:
-                sys.stderr.write("Error, can't identify cell barcode in either filename, or first read)
+                sys.stderr.write("Error, can't identify cell barcode in either filename, or first read")
                 sys.exit()
             fasta.seek(0) # seek back to beginning of file
 
