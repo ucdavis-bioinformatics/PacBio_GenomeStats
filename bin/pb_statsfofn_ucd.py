@@ -55,14 +55,14 @@ def parse_pacbio_readid_rs2(str1):
 
 
 if len(args) > 1:
-    sys.stderr.write("program requires at most 1 argument")
-    sys.stderr.write(usage)
+    sys.stderr.write("program requires at most 1 argument\n")
+    sys.stderr.write(usage + '\n')
     sys.exit()
 elif len(args) == 1:
     infile = args[0]
     # Start opening input/output files:
     if not os.path.exists(infile):
-        sys.stderr.write("Error, can't find input file %s" % infile)
+        sys.stderr.write("Error, can't find input file %s\n" % infile)
         sys.exit()
     infofn = open(infile, 'r')
 else:
@@ -90,12 +90,12 @@ for line in infofn:
     if len(line) == 0:
         continue
     if not os.path.exists(line):
-        sys.stderr.write("Error, can't find fasta file %s" % line)
+        sys.stderr.write("Error, can't find fasta file %s\n" % line)
         sys.exit()
 
     # process a fasta file
     fasta = open(line, 'r')
-    sys.stderr.write("Processing file: %s" % line)
+    sys.stderr.write("Processing file: %s\n" % line)
     # parse out run and cell position and cell barcode from file name
     pf = line.split("/Analysis_Results/")
     if len(pf) == 2:
@@ -107,7 +107,7 @@ for line in infofn:
             cell_position = pr[-1]
             cell_barcode = m.group(1)
         else:
-            sys.stderr.write("Error, can't identify cell barcode in either filename, or first read")
+            sys.stderr.write("Error, can't identify cell barcode in either filename, or first read\n")
             sys.exit()
     elif len(pf) == 1:
         run = None
@@ -124,12 +124,12 @@ for line in infofn:
                 cell_position = None
                 cell_barcode = m.group(1)
             else:
-                sys.stderr.write("Error, can't identify cell barcode in either filename, or first read")
+                sys.stderr.write("Error, can't identify cell barcode in either filename, or first read\n")
                 sys.exit()
             fasta.seek(0) # seek back to beginning of file
 
     else:
-        sys.stderr.write("Error, can't identify cell barcode in either filename, or first read")
+        sys.stderr.write("Error, can't identify cell barcode in either filename, or first read\n")
         sys.exit()            
 
     rcount = 0 # read count
