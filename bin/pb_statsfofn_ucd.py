@@ -30,7 +30,7 @@ parser = OptionParser(usage=usage, version="%prog " + str(version), epilog=epilo
 parser.add_option('-o', '--output', help="output filename, stdout is acceptable [default: %default]",
                   action="store", type="str", dest="output", default="input.fofn.stats")
 parser.add_option('-d', '--id', help="ID for the stats output [default: %default]",
-                  action="store", type="str", dest="id", default=none)
+                  action="store", type="str", dest="id", default=None)
 
 (options, args) = parser.parse_args()
 
