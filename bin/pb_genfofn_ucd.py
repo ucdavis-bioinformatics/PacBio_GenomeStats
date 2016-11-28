@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 '''
-gen_fofn.py
+pb_genfofn_ucd.py
 
 generate pacbio fofn file from list of cells
 cells format (tab delimited),
@@ -36,11 +36,11 @@ The cells_file can be provided as stdin. \
 Specifying -o stdout can be used to put the output to stdout."
 
 parser = OptionParser(usage=usage, version="%prog 1.0", epilog=epilog)
-parser.add_option('-o', '--output', help="output filename, stdout is acceptable ",
+parser.add_option('-o', '--output', help="output filename, stdout is acceptable [defaut: %default]",
                   action="store", type="str", dest="output", default="input.fofn")
-parser.add_option('-b', '--basepath', help="pac bio cell base filepath",
+parser.add_option('-b', '--basepath', help="pac bio cell base filepath [default: %default]",
                   action="store", type="str", dest="base", default="/share/dnat/rs2/")
-parser.add_option('-f', '--filetype', help="file type",
+parser.add_option('-f', '--filetype', help="file type [default: %default]",
                   action="store", type="str", dest="filetype", default="fasta")
 
 (options, args) = parser.parse_args()
