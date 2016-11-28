@@ -167,7 +167,7 @@ for line in infofn:
 
     stats_data.append(file_data)
 
-cell_keys = ["run_id","cell_position","cell_barcode","filename","read_count","zmw","read_starts","read_ends","read_lengths","read_qualities"]
+file_keys = ["run_id","cell_position","cell_barcode","filename","read_count","zmw","read_starts","read_ends","read_lengths","read_qualities"]
 
 stats_json = OrderedDict([
     ("id", sid),
@@ -178,8 +178,8 @@ stats_json = OrderedDict([
     ("type", "ucd pb stats"),
     ("source", "fasta"),
     ("number_of_files", fasta_files),
-    ("file_keys", cell_keys),
-    ("file_data", cell_data)])
+    ("file_keys", file_keys),
+    ("file_data", file_data)])
 
 json.dump(stats_json, out)
 
