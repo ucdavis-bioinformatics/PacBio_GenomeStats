@@ -81,7 +81,7 @@ sid = options.id
 run_count = 0
 fasta_files = 0
 
-stats_data = []
+all_data = []
 
 for line in infofn:
     # each line in the fofn file is one fasta file
@@ -165,7 +165,8 @@ for line in infofn:
                              ("read_lengths", rlen),
                              ("read_qualiies", rq)])
 
-    stats_data.append(file_data)
+    all_data.append(file_data)
+    file_data = None
 
 file_keys = ["run_id","cell_position","cell_barcode","filename","read_count","zmw","read_starts","read_ends","read_lengths","read_qualities"]
 
@@ -179,7 +180,7 @@ stats_json = OrderedDict([
     ("source", "fasta"),
     ("number_of_files", fasta_files),
     ("file_keys", file_keys),
-    ("file_data", file_data)])
+    ("file_data", all_data)])
 
 json.dump(stats_json, out)
 
