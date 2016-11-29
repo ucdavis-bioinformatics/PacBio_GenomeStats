@@ -24,7 +24,7 @@ from optparse import OptionParser  # http://docs.python.org/library/optparse.htm
 version = "1.0"
 usage = "usage: %prog [options] -o output_filename fofn_file"
 epilog = "The fofn_file can be provided as stdin. \
-Specifying -o stdout can be used to put the output to stdout."
+Specifying -o stdout can be used to put the ou tput to stdout."
 
 parser = OptionParser(usage=usage, version="%prog " + str(version), epilog=epilog)
 parser.add_option('-o', '--output', help="output filename, stdout is acceptable [default: %default]",
@@ -172,7 +172,7 @@ file_keys = ["run_id","cell_position","cell_barcode","filename","read_count","zm
 
 stats_json = OrderedDict([
     ("id", sid),
-    ("format", "UCD Pac Bio Fasta stats %s" version),
+    ("format", "UCD Pac Bio Fasta stats %s" % version),
     ("format_url", "https://github.com/ucdavis-bioinformatics/PacBio_GenomeStats"),
     ("generated_by", "pb_statsfofn_ucd.py"),
     ("date", time.strftime("%Y-%m-%dT%H:%M:%S")),
