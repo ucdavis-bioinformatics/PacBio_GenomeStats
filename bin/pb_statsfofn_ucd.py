@@ -166,7 +166,7 @@ for line in infofn:
 
     all_data.append(file_data)
     file_data = None
-    fasta_file += 1
+    fasta_files += 1
 
 file_keys = ["run_id","cell_position","cell_barcode","filename","read_count","zmw","read_starts","read_ends","read_lengths","read_qualities"]
 
