@@ -78,7 +78,6 @@ else:
 
 sid = options.id
 
-run_count = 0
 fasta_files = 0
 
 all_data = []
@@ -167,12 +166,13 @@ for line in infofn:
 
     all_data.append(file_data)
     file_data = None
+    fasta_file += 1
 
 file_keys = ["run_id","cell_position","cell_barcode","filename","read_count","zmw","read_starts","read_ends","read_lengths","read_qualities"]
 
 stats_json = OrderedDict([
     ("id", sid),
-    ("format", "UCD Pac Bio Fasta stats"),
+    ("format", "UCD Pac Bio Fasta stats %s" version),
     ("format_url", "https://github.com/ucdavis-bioinformatics/PacBio_GenomeStats"),
     ("generated_by", "pb_statsfofn_ucd.py"),
     ("date", time.strftime("%Y-%m-%dT%H:%M:%S")),
@@ -182,6 +182,7 @@ stats_json = OrderedDict([
     ("file_keys", file_keys),
     ("file_data", all_data)])
 
+sys.stderr.write("Writing JSON output to: %s" % output )
 json.dump(stats_json, out)
 
 infofn.close()
