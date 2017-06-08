@@ -27,15 +27,8 @@ fi
 # Folder does not contain needed files
 metadata=$(find ${output_dir} -maxdepth 1 -mindepth 1 -name '*.metadata.xml')
 csv=$(find ${output_dir}/Analysis_Results -maxdepth 1 -mindepth 1 -name '*.sts.csv')
-if [ ! -f $metadata | ! -f $csv ]; then
+if [ ! -f $metadata ] || [ ! -f $csv ]; then
   exit 3
-fi
-
-# Folder does not contain needed files
-metadata=$(find ${output_dir} -maxdepth 1 -mindepth 1 -name '*.metadata.xml')
-csv=$(find ${output_dir}/Analysis_Results -maxdepth 1 -mindepth 1 -name '*.sts.csv')
-if [ -f $metadata | -f $csv ]; then
-   exit 3
 fi
 
 ## render html report
