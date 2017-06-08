@@ -182,7 +182,7 @@ stats_json = OrderedDict([
     ("file_keys", file_keys),
     ("file_data", all_data)])
 
-sys.stderr.write("Writing JSON output to: %s" % output )
+sys.stderr.write("Writing JSON output to: %s\n" % output )
 json.dump(stats_json, out)
 
 infofn.close()

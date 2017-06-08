@@ -1,0 +1,265 @@
+---
+output:
+  html_document: default
+  pdf_document: default
+  word_document: default
+params:
+  basedir: /share/dnat/rs2
+  run: 150108_283
+  cell: A01_1
+title: "PacBio RSII Run/Cell Report"
+author: |
+  DNA Technologies Core, University of California, Davis
+  <br> <sub> Email: dnatech@ucdavis.edu </sub>
+date: '`r Sys.Date()`'
+rights: © 2017 UC Davis Bioinformatics Core
+---
+
+```{r setup, include=FALSE}
+options(warn=-1)
+knitr::opts_chunk$set(echo = FALSE)
+library(XML)
+library(knitr)
+library(ggplot2)
+library(scales)
+library(gridExtra)
+library(reshape2)
+
+knitr::opts_chunk$set(dev='png')
+
+cell_folder = file.path(params$basedir,params$run,params$cell)
+```
+
+## Run and Cell Metadata
+
+```{r echo=FALSE}
+### Run/Cell metadata
+metadata_xml = dir(cell_folder,pattern=".metadata.xml",full.names = TRUE)[1]
+SMRT_Cell_ID = paste(unlist(strsplit(basename(metadata_xml),split="_"))[1:4],collapse="_")
+x <- xmlParse(metadata_xml)
+l <- xmlToList(xmlRoot(x))
+
+InstrumentName = l$InstrumentName
+InstrumentCtrlVer = l$InstCtrlVer
+RunId = l$Run$RunId
+MovieStarted = l$Movie$WhenStarted
+MovieMinutes = as.numeric(l$Movie$DurationInSec)/60
+SampleName = l$Sample$Name
+SamplePlateID = l$Sample$PlateId
+SampleWellName = l$Sample$WellName
+TemplatePrep = l$TemplatePrep$Name
+TemplateAdapter = l$TemplatePrep$AdapterSequence
+TemplateInsertSize = l$TemplatePrep$InsertSize
+
+metadata_df <- data.frame("Run Metadata"=c(
+                           "SMRT Cell ID",
+                           "Instrument Name",
+                           "Instrument Controller Version",
+                           "Run ID",
+                           "Movie Started",
+                           "Movie Plate ID",
+                           "Movie Well Name",
+                           "Template Prep Name",
+                           "Template Adapter Sequence",
+                           "Template Insert Size",
+                           "Sample Name"),
+                          "Value"=c(
+                                  SMRT_Cell_ID,
+                                  l$InstrumentName,
+                                  l$InstCtrlVer,
+                                  l$Run$RunId,
+                                  strftime(l$Movie$WhenStarted),
+                                  l$Sample$PlateId,
+                                  l$Sample$WellName,
+                                  l$TemplatePrep$Name,
+                                  l$TemplatePrep$AdapterSequence,
+                                  l$TemplatePrep$InsertSize,
+                                  l$Sample$Name
+))
+kable(metadata_df, col.names=c("Run Metadata","Value"), caption="Run Metadata")
+```
+
+```{r, echo=FALSE, results='asis'}
+  cat("\n\n\\pagebreak\n")
+```
+
+## Loading and Adapter Dimers
+### Loading
+
+```{r echo=FALSE}
+csv_file = dir(file.path(cell_folder,"Analysis_Results"),pattern=".sts.csv",full.names=TRUE)
+
+csv <- read.table(csv_file,sep=",", header=T, as.is=T)
+
+#table(csv$ZmwType)
+#ANTIHOLE ANTIMIRROR      FDZMW   FIDUCIAL OUTSIDEFOV SEQUENCING
+#250        260        912      10552       1216     150292
+
+polymerase_reads <- csv[csv$ZmwType=="SEQUENCING",] ## count == Polymerase reads
+
+## Loading Table
+t_prod <- data.frame("ZMWs"=table(polymerase_reads$ZmwType,polymerase_reads$ProductivityLabel)[,c("Empty","Productive","Other")])
+t_prod$Percentage = paste0(round(t_prod$ZMWs/sum(t_prod$ZMWs) * 100,2),"%")
+t_prod = rbind(t_prod,Total=c(sum(t_prod$ZMWs),""))
+t_prod$ZMWs <- formatC(as.numeric(t_prod$ZMWs), format="d", big.mark=",")
+kable(t_prod,col.names = c("ZMWs","Percentage"),caption="ZMW Loading Characteristics [Empty = 'Productivity 0', Productive = 'Productivity 1', Other = 'Productivity 2']", align=c('r','r'))
+# #             Empty  Other Productive
+# #ANTIHOLE      250      0          0
+# #ANTIMIRROR    260      0          0
+# #FDZMW         834     52         26
+# #FIDUCIAL    10524     15         13
+# #OUTSIDEFOV   1204      3          9
+# #SEQUENCING 132833   2291      15168  <--- This is loading stats
+#
+
+d <- qplot(ReadLength, ReadScore, data=polymerase_reads, colour=ProductivityLabel, ylim = c(0,1.0))
+suppressWarnings(print(d))
+```
+
+```{r, echo=FALSE, results='asis'}
+  cat("\n\n\\pagebreak\n")
+```
+
+### Adapter Dimers
+```{r, echo=FALSE}
+## Adapter Dimers
+ad_short <- sum(polymerase_reads$MedianInsertLength > 0 & polymerase_reads$MedianInsertLength <= 10)
+ad_medium <- sum(polymerase_reads$MedianInsertLength > 10 & polymerase_reads$MedianInsertLength <=100)
+adapters <- data.frame("Count"= formatC(c(ad_short,ad_medium), format="d", big.mark=","), "Percentage" = paste0(round(c(ad_short,ad_medium)/length(polymerase_reads$MedianInsertLength) * 100,2),"%"))
+rownames(adapters) <- c("Adapter Dimers (0-10bp)","Short Inserts (10-100bp)")
+kable(adapters, col.names = c("Count","Percentage"),caption="Adapter Dimers and Short Inserts", align=c('r','r'))
+
+g <- ggplot(polymerase_reads[polymerase_reads$MedianInsertLength >0,], aes(MedianInsertLength)) +
+  scale_x_log10("Median distance between adapters (bp) [log10]", limits=c(1,10000),
+                breaks = trans_breaks("log10", function(x) 10^x),labels = prettyNum) +
+  ylab("Prefilter Reads") +
+  geom_histogram(bins=50)
+
+suppressWarnings(print(g))
+```
+
+```{r, echo=FALSE, results='asis'}
+  cat("\n\n\\pagebreak\n")
+```
+
+## Read Filtering
+
+```{r echo=FALSE}
+filtered_reads <- polymerase_reads[polymerase_reads$Productivity==1,]
+
+n50 <- function(x){
+  ord <- order(x,decreasing=TRUE)
+  x[ord][(cumsum(as.numeric(x[ord]))/sum(as.numeric(x))) >= 0.5][1]
+}
+# Filter Table
+filter_df <- data.frame("Polymerase Metric"=c(
+                           "Read Count",
+                           "Read Bases",
+                           "Max Read Length",
+                           "Mean Read Length",
+                           "Read N50",
+                           "Mean Read Score"
+                          ),
+                          "Pre-Filter"=c(prettyNum(c(
+                            nrow(polymerase_reads),
+                            sum(as.numeric(polymerase_reads$ReadLength)),
+                            max(polymerase_reads$ReadLength),
+                            round(mean(polymerase_reads$ReadLength),0),
+                            round(n50(polymerase_reads$ReadLength),0)), big.mark=","),
+                            round(mean(polymerase_reads$ReadScore),2)),
+                          "Post-Filter"=c(prettyNum(c(
+                            nrow(filtered_reads),
+                            sum(as.numeric(filtered_reads$ReadLength)),
+                            max(filtered_reads$ReadLength),
+                            round(mean(filtered_reads$ReadLength),0),
+                            round(n50(filtered_reads$ReadLength),0)), big.mark=","),
+                            round(mean(filtered_reads$ReadScore),3))
+                          )
+
+kable(filter_df, col.names=c("Polymerase Metric","Pre-Filter","Post-Filter"), caption="Polymerase filtering statistics")
+
+h <- ggplot(filtered_reads, aes(ReadLength)) +
+  xlab("Reads Length") +
+  ylab("Reads") +
+  labs(caption="Polymerase Read Lengths (Post-Filter)") +
+  geom_histogram(bins=250, colour = "green", fill = "green")
+#suppressWarnings(print(h))
+
+i <- ggplot(filtered_reads, aes(ReadScore)) +
+  xlab("Reads Quality") +
+  ylab("Read Count") +
+  labs(caption="Polymerase Read Quality (Post-Filter)") +
+  geom_histogram(bins=250, colour = "blue", fill = "blue")
+#suppressWarnings(print(i))
+
+suppressWarnings(grid.arrange(h, i, ncol=2))
+
+```
+
+```{r, echo=FALSE, results='asis'}
+  cat("\n\n\\pagebreak\n")
+```
+
+## Subreads Metrics
+```{r, echo=FALSE}
+# Filter Table
+subread_df <- data.frame("Subread Metric"=c(
+                           "Read Count",
+                           "Read Bases",
+                           "Max Read Length",
+                           "Mean Read Length",
+                           "Read N50",
+                           "Mean Read Score"
+                          ),
+                          "Value"=c(prettyNum(c(
+                            nrow(filtered_reads),
+                            sum(as.numeric(filtered_reads$InsertReadLen)),
+                            max(filtered_reads$InsertReadLen),
+                            round(mean(filtered_reads$InsertReadLen),0),
+                            round(n50(filtered_reads$InsertReadLen),0)), big.mark=","),
+                            round(mean(filtered_reads$InsertReadQual),3))
+                          )
+
+kable(subread_df, col.names=c("Subread Metric","Post-Filter"), caption="Subread statistics")
+
+j <- ggplot(filtered_reads, aes(InsertReadLen)) +
+  xlab("Subreads Length") +
+  ylab("Subread Count") +
+  labs(caption="Subread Lengths") +
+  geom_histogram(bins=250, colour = "green", fill= "green")
+
+
+base_data <- melt(filtered_reads[,c("ProductivityLabel","BaseFraction_A","BaseFraction_C","BaseFraction_G","BaseFraction_T")],id="ProductivityLabel")
+base_data$variable <- sub("BaseFraction_","",base_data$variable)
+k <- ggplot(base_data, aes(factor(variable),value)) +
+  xlab("Base") +
+  ylab("percentage") +
+  labs(caption="Base composition across subreads") +
+  geom_violin(aes(fill=c("blue","green","yellow","red")[as.numeric(factor(base_data$variable))]),
+                                                                  draw_quantiles = c(0.25, 0.5, 0.75),
+                                                                  show.legend=FALSE)
+suppressWarnings(grid.arrange(j, k, ncol=2))
+
+```
+
+```{r echo=FALSE}
+### NO NEED TO READ IN SEQUENCE DATA?
+# fa1 <- readDNAStringSet(dir(file.path(basedir,run,cell,"Analysis_Results"),pattern="1.subreads.fasta"",full.names=TRUE)
+# fa2 <- readDNAStringSet(dir(file.path(basedir,run,cell,"Analysis_Results"),pattern="2.subreads.fasta"",full.names=TRUE)
+# fa3 <- readDNAStringSet(dir(file.path(basedir,run,cell,"Analysis_Results"),pattern="3.subreads.fasta"",full.names=TRUE)
+#
+# fa <- c(fa1,fa2,fa3)
+#
+# outreads <- data.frame(matrix(unlist(strsplit(names(fa),split="/| RQ=")),ncol = 4,byrow = T),stringsAsFactors = F)
+# colnames(outreads) <- c("run","zmw","range","quality")
+# outreads <- data.frame(outreads,width=width(fa))
+#
+```
+
+
+```{r, echo=FALSE, results='asis'}
+  cat("\n\n\n")
+```
+Pacific Biosystems report generated from code created by the UC Davis Bioinformtics Core facility [bioinformatics.core@ucdavis.edu](mailto:bioinformatics.core@ucdavis.edu)
+
+

@@ -1,2 +1,3 @@
 # PacBio_GenomeStats
-Given a set of Pac Bio cells, generate fofn needed for assembly and statistics
+Package is meant to detail Pac Bio Cell data, for both QA/QC and assembly statistics
+

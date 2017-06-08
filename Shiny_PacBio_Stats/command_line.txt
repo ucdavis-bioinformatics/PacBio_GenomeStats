@@ -1,0 +1,15 @@
+
+
+
+
+Rscript -e 'library(rmarkdown); rmarkdown::render("/Users/mattsettles/CodeProjects/PacBio_GenomeStats/markdown_reports/pacbio_report_template.Rmd", output_format="word_document", output_dir=".", output_file="Test_document.docx")'
+
+Rscript -e 'library(rmarkdown); rmarkdown::render("/Users/mattsettles/CodeProjects/PacBio_GenomeStats/markdown_reports/pacbio_report_template.Rmd", output_format="pdf_document", output_dir=".", output_file="Test_document.pdf")'
+
+Rscript -e 'library(rmarkdown); rmarkdown::render("/Users/mattsettles/CodeProjects/PacBio_GenomeStats/markdown_reports/pacbio_report_template.Rmd", output_format="html_document", output_dir=".", output_file="Test_document.html")'
+
+
+Rscript -e 'library(rmarkdown); rmarkdown::render("/Users/mattsettles/CodeProjects/PacBio_GenomeStats/markdown_reports/pacbio_report_template.Rmd", output_format="all", output_dir=".", output_file="Test_document", params = list(basedir="/Users/mattsettles/CodeProjects/PacBio_GenomeStats/test_data/", run="", cell="A01_1"))'
+
+
+Rscript -e 'library(rmarkdown); rmarkdown::render("~/pacbio_report_template.Rmd", output_format="all", output_dir=".", params = list(basedir="/share/dnat/rs2", run="150108_283", cell="A01_1"))'
