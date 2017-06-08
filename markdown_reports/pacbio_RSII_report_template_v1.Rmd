@@ -28,13 +28,17 @@ library(reshape2)
 knitr::opts_chunk$set(dev='png')
 
 cell_folder = file.path(params$basedir,params$run,params$cell)
+metadata_xml = dir(cell_folder,pattern=".metadata.xml",full.names = TRUE)[1]
+csv_file = dir(file.path(cell_folder,"Analysis_Results"),pattern=".sts.csv",full.names=TRUE)
+if(!file.exists(metadata_xml) | !file.exists(csv_file)){
+  quit(save=FALSE,status=2)
+}
 ```
 
 ## Run and Cell Metadata
 
 ```{r echo=FALSE}
 ### Run/Cell metadata
-metadata_xml = dir(cell_folder,pattern=".metadata.xml",full.names = TRUE)[1]
 SMRT_Cell_ID = paste(unlist(strsplit(basename(metadata_xml),split="_"))[1:4],collapse="_")
 x <- xmlParse(metadata_xml)
 l <- xmlToList(xmlRoot(x))
@@ -87,8 +91,6 @@ kable(metadata_df, col.names=c("Run Metadata","Value"), caption="Run Metadata")
 ### Loading
 
 ```{r echo=FALSE}
-csv_file = dir(file.path(cell_folder,"Analysis_Results"),pattern=".sts.csv",full.names=TRUE)
-
 csv <- read.table(csv_file,sep=",", header=T, as.is=T)
 
 #table(csv$ZmwType)
@@ -241,21 +243,6 @@ k <- ggplot(base_data, aes(factor(variable),value)) +
 suppressWarnings(grid.arrange(j, k, ncol=2))
 
 ```
-
-```{r echo=FALSE}
-### NO NEED TO READ IN SEQUENCE DATA?
-# fa1 <- readDNAStringSet(dir(file.path(basedir,run,cell,"Analysis_Results"),pattern="1.subreads.fasta"",full.names=TRUE)
-# fa2 <- readDNAStringSet(dir(file.path(basedir,run,cell,"Analysis_Results"),pattern="2.subreads.fasta"",full.names=TRUE)
-# fa3 <- readDNAStringSet(dir(file.path(basedir,run,cell,"Analysis_Results"),pattern="3.subreads.fasta"",full.names=TRUE)
-#
-# fa <- c(fa1,fa2,fa3)
-#
-# outreads <- data.frame(matrix(unlist(strsplit(names(fa),split="/| RQ=")),ncol = 4,byrow = T),stringsAsFactors = F)
-# colnames(outreads) <- c("run","zmw","range","quality")
-# outreads <- data.frame(outreads,width=width(fa))
-#
-```
-
 
 ```{r, echo=FALSE, results='asis'}
   cat("\n\n\n")
