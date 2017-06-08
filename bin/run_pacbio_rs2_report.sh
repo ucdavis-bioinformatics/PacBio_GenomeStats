@@ -15,6 +15,10 @@ cell_cell="$3"
 output_dir="${cell_basedir}/${cell_run}/${cell_cell}"
 output_basefilename="PacBioReport-${cell_run}-${cell_cell}"
 
+if [ -f ${output_dir}/${output_basefilename}.pdf ]; then
+   exit 2
+fi
+
 ## render html report
 call="library(rmarkdown); rmarkdown::render( \
         '${template_rpt}', \
