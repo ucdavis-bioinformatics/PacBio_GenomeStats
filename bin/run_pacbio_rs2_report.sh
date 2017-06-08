@@ -11,8 +11,8 @@ template_rpt="../markdown_reports/pacbio_RSII_report_template_v1.Rmd"
 cell_basedir="$1"
 cell_run="$2"
 cell_cell="$3"
-output_dir="."
-#output_dir="${cell_basedir}/${cell_run}/${cell_cell}"
+#output_dir="."
+output_dir="${cell_basedir}/${cell_run}/${cell_cell}"
 output_basefilename="PacBioReport-${cell_run}-${cell_cell}"
 
 ## render html report
