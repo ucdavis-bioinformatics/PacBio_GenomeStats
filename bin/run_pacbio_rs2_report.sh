@@ -32,8 +32,8 @@ if [ -f ${output_dir}/${output_basefilename}.pdf ]; then
 fi
 
 # Folder does not contain needed files
-metadata=$(find ${cell_basedir} -maxdepth 1 -mindepth 1 -name '*.metadata.xml')
-csv=$(find ${cell_basedir}/Analysis_Results -maxdepth 1 -mindepth 1 -name '*.sts.csv')
+metadata=$(find ${cell_basedir}/${cell_run}/${cell_cell}  -maxdepth 1 -mindepth 1 -name '*.metadata.xml')
+csv=$(find ${cell_basedir}/${cell_run}/${cell_cell}/Analysis_Results -maxdepth 1 -mindepth 1 -name '*.sts.csv')
 if [ -z ${metadata} ] || [ -z ${csv} ]; then
   exit 3
 fi
