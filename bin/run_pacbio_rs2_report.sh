@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 ## Pacific Biosciences RSII Report Generation
 ## version 1.0
-## Error Codes, 0-sucessfully created reports, 1-error, 2-report already exists, 3-cell exists, needed files do not
+## requires 4 parameters as input, cell_basedir, cell_run, cell_cell, output_basedir
+## Error Codes, 0-sucessfully created reports, 1-error, 2-report already exists, 3-cell exists, 4-needed files do not
 module --silent load R/local_libs
 
 template_rpt="../markdown_reports/pacbio_RSII_report_template_v1.Rmd"
@@ -11,11 +12,17 @@ template_rpt="../markdown_reports/pacbio_RSII_report_template_v1.Rmd"
 cell_basedir="$1"
 cell_run="$2"
 cell_cell="$3"
-#output_dir="."
-output_dir="${cell_basedir}/${cell_run}/${cell_cell}"
+output_basedir="$4"
+output_dir="${output_basedir}/${cell_run}/${cell_cell}"
 output_basefilename="PacBioReport-${cell_run}-${cell_cell}"
 
+mkdir -p ${output_dir}
+
 if [ ! -d "${output_dir}" ]; then
+  exit 1
+fi
+
+if [ ! -d "${cell_basedir}" ]; then
   exit 1
 fi
 
@@ -25,8 +32,8 @@ if [ -f ${output_dir}/${output_basefilename}.pdf ]; then
 fi
 
 # Folder does not contain needed files
-metadata=$(find ${output_dir} -maxdepth 1 -mindepth 1 -name '*.metadata.xml')
-csv=$(find ${output_dir}/Analysis_Results -maxdepth 1 -mindepth 1 -name '*.sts.csv')
+metadata=$(find ${cell_basedir} -maxdepth 1 -mindepth 1 -name '*.metadata.xml')
+csv=$(find ${cell_basedir}/Analysis_Results -maxdepth 1 -mindepth 1 -name '*.sts.csv')
 if [ -z ${metadata} ] || [ -z ${csv} ]; then
   exit 3
 fi
