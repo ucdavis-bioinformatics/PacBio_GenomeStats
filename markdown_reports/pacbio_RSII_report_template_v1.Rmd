@@ -67,7 +67,7 @@ metadata_df <- data.frame("Run Metadata"=c(
                            "Template Adapter Sequence",
                            "Template Insert Size",
                            "Sample Name"),
-                          "Value"=c(
+                           "Value"=c(
                                   SMRT_Cell_ID,
                                   l$InstrumentName,
                                   l$InstCtrlVer,
