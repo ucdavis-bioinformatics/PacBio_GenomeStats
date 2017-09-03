@@ -3,6 +3,7 @@
 ## version 1.0
 ## requires 4 parameters as input, cell_basedir, cell_run, cell_cell, output_basedir
 ## Error Codes, 0-sucessfully created reports, 1-error, 2-report already exists, 3-cell exists, 4-needed files do not
+source /etc/profile.d/modules_sh.sh
 module --silent load R/local_libs
 
 template_rpt="../markdown_reports/pacbio_RSII_report_template_v1.Rmd"
