@@ -5,7 +5,9 @@
 ## Error Codes, 0-sucessfully created reports, 1-error, 2-report already exists, 3-cell exists, 4-needed files do not
 module --silent load R/local_libs
 
-template_rpt="../markdown_reports/pacbio_RSII_report_template_v1.Rmd"
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+template_rpt="${DIR}/markdown_reports/pacbio_RSII_report_template_v1.Rmd"
 #cell_basedir="/share/dnat/rs2"
 #cell_run="170606_488"
 #cell_cell="E01_1"
