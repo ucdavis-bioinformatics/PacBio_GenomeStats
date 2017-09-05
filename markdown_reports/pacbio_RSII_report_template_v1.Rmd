@@ -5,8 +5,8 @@ output:
   word_document: default
 params:
   basedir: /share/dnat/rs2
-  run: 150108_283
-  cell: A01_1
+  run: RS42145_dryrun_02202017_491
+  cell: D01_1
 title: "PacBio RSII Run/Cell Report"
 author: |
   DNA Technologies Core, University of California, Davis
@@ -100,7 +100,7 @@ csv <- read.table(csv_file,sep=",", header=T, as.is=T)
 polymerase_reads <- csv[csv$ZmwType=="SEQUENCING",] ## count == Polymerase reads
 
 ## Loading Table
-t_prod <- data.frame("ZMWs"=table(polymerase_reads$ZmwType,polymerase_reads$ProductivityLabel)[,c("Empty","Productive","Other")])
+t_prod <- data.frame("ZMWs"=table(polymerase_reads$ZmwType,factor(polymerase_reads$ProductivityLabel,levels=c("Empty","Productive","Other")))[,c("Empty","Productive","Other")])
 t_prod$Percentage = paste0(round(t_prod$ZMWs/sum(t_prod$ZMWs) * 100,2),"%")
 t_prod = rbind(t_prod,Total=c(sum(t_prod$ZMWs),""))
 t_prod$ZMWs <- formatC(as.numeric(t_prod$ZMWs), format="d", big.mark=",")
