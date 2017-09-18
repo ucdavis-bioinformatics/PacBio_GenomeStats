@@ -63,7 +63,7 @@ metadata_df <- data.frame("Run Metadata"=c(
                            "Movie Started",
                            "Movie Plate ID",
                            "Movie Well Name",
-                           "Template Prep Name",
+#                           "Template Prep Name",
                            "Template Adapter Sequence",
                            "Template Insert Size",
                            "Sample Name"),
@@ -75,7 +75,7 @@ metadata_df <- data.frame("Run Metadata"=c(
                                   strftime(l$Movie$WhenStarted),
                                   l$Sample$PlateId,
                                   l$Sample$WellName,
-                                  l$TemplatePrep$Name,
+#                                  l$TemplatePrep$Name,
                                   l$TemplatePrep$AdapterSequence,
                                   l$TemplatePrep$InsertSize,
                                   l$Sample$Name
