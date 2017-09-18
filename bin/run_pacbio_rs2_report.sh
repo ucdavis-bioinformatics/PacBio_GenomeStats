@@ -6,9 +6,9 @@
 source /etc/profile.d/modules_sh.sh
 module --silent load R/local_libs
 
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+#DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+template_rpt="../markdown_reports/pacbio_RSII_report_template_v1.Rmd"
 
-template_rpt="${DIR}/../markdown_reports/pacbio_RSII_report_template_v1.Rmd"
 #cell_basedir="/share/dnat/rs2"
 #cell_run="170606_488"
 #cell_cell="E01_1"
